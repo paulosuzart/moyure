@@ -1,21 +1,56 @@
 (ns moyure.core
-  (:use compojure.core hiccup.core ring.adapter.jetty)
-  (:require [compojure.route :as route]))
-
-(defn page [con]
+  (:use [compojure.core]
+        [hiccup.core :only [html]]
+        [ring.adapter.jetty :only [run-jetty]]
+        [sandbar.core]
+        [sandbar.stateful-session :only [flash-put! flash-get
+                                         wrap-stateful-session]]
+        [sandbar.validation :only [add-validation-error
+                                   build-validator
+                                   non-empty-string]])
+  (:require [compojure.route :as route]
+            [sandbar.forms :as forms]))
+ 
+(defn layout [con]
 
     (html [:html 
              [:head 
                 [:title "Organize your meet ups with Compojure - Moyure"]]
              
              [:body 
-                 [:h2 "MOYURE"] con]]))
-(def hel 
-    (page [:span [:b "Hello"]]))
+                 [:h2 "MOYURE"] 
+                 (if-let [m (flash-get :user-message)] 
+                      [:div m])
+                   con]]))
 
-(defroutes hello
-    (GET "/" [] hel)
-    (route/not-found "Page not found dude!"))
+(defn home [] 
+    (layout [:div 
+                [:div [:b "Hello Visitor"]]]))
+
+
+(def m-label {:title "Title"
+              :when "When"
+              :subject "Subject"})
+
+(forms/defform meetup-form "/meetup"
+    :fields [(forms/textfield :title)
+             (forms/textfield :when {:size 10})
+             (forms/textarea :subject)]
+    :on-cancel "/"
+    :on-success #(do (println %)
+                     (flash-put! :user-message "Meet up saved, go tell your friends!")
+                     "/")
+   ;; :validator #(non-empty-string % :title :when :subject m-label)
+    :properties m-label)
+ 
+
+(defroutes app-routes 
+    (GET "/" [] (home))
+    (meetup-form (fn [request form] (layout form)))
+    (route/not-found (layout [:h2 "Page not found dude!"])))
+
+(def s-routes (-> app-routes wrap-stateful-session))
 
 (defn run[]
-    (run-jetty hello {:port 8080}))
+    (future (run-jetty (var s-routes) {:port 8080})))
+
