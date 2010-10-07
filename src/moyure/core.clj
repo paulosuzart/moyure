@@ -1,6 +1,7 @@
 (ns moyure.core
   (:use [compojure.core]
         [hiccup.core :only [html]]
+        [hiccup.page-helpers :only [doctype link-to]]
         [ring.adapter.jetty :only [run-jetty]]
         [sandbar.core]
         [sandbar.stateful-session :only [flash-put! flash-get
@@ -23,9 +24,23 @@
                       [:div m])
                    con]]))
 
+(def db (ref {}))
+(defn insert [d] 
+    (dosync (alter db assoc (:id d) d)))
+
+(def id (ref 0))
+(def nextval (dosync (alter id inc)))
+(defn findAll [] @db)
+
+
+(defn show-all []
+   (mapcat #([:tr [:td (:id %)]]) @db))
+
 (defn home [] 
     (layout [:div 
-                [:div [:b "Hello Visitor"]]]))
+                 [:b "Hello Visitor"]
+                 [:p (link-to "/meetup" "New MeetUp")]
+                 [:table (show-all)]]))
 
 
 (def m-label {:title "Title"
@@ -33,11 +48,12 @@
               :subject "Subject"})
 
 (forms/defform meetup-form "/meetup"
-    :fields [(forms/textfield :title)
+    :fields [(forms/hidden :id)
+             (forms/textfield :title)
              (forms/textfield :when {:size 10})
              (forms/textarea :subject)]
     :on-cancel "/"
-    :on-success #(do (println %)
+    :on-success #(do (insert (assoc % :id nextval)) (println @db)
                      (flash-put! :user-message "Meet up saved, go tell your friends!")
                      "/")
    ;; :validator #(non-empty-string % :title :when :subject m-label)
