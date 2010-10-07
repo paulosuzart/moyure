@@ -8,7 +8,8 @@
              [:head 
                 [:title "Organize your meet ups with Compojure - Moyure"]]
              
-             [:body con]]))
+             [:body 
+                 [:h2 "MOYURE"] con]]))
 (def hel 
     (page [:span [:b "Hello"]]))
 
