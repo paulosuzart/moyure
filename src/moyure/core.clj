@@ -30,7 +30,7 @@
                    con]]))
 
 (defn show-all
-    "Generates a html snipet for entries"
+    "Generates a html snippet for entries"
     [a]
     (for [[k v] a]
         (let [id (:id v)
