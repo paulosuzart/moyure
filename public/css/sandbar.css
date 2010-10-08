@@ -1,0 +1,41 @@
+html, body {
+   font-family: Verdana, Arial, Helvetica, sans-serif;
+   font-size: 12px;
+   background-color: #ffffff;
+}
+
+div.error, div.message, div.warning, div.help {
+   background-color: #ffffcc;
+   border: 1px solid #ccc;
+   color: #666;
+   font-family: Arial, Helvetica, sans-serif;
+   font-weight: bold;
+   margin: 10px auto;
+   padding: 5px;
+   text-align: left;
+   vertical-align: bottom;
+}
+
+/* use a different color for the errors */
+div.error {
+   background: #ffffcc url(../images/error.png) no-repeat 3px 3px;
+   padding-left: 22px;
+   border: 1px solid red;
+}
+
+div.warning {
+   background: #ffffcc url(../images/warning.png) no-repeat 3px 3px;
+   padding-left: 22px;
+   border: 1px solid yellow;
+}
+
+div.message {
+   background: #ffffcc url(../images/about.png) no-repeat 3px 3px;
+   padding-left: 22px;
+}
+
+div.help {
+   background: #ffffcc url(../images/help.png) no-repeat 3px 3px;
+   padding-left: 22px;
+}
+
