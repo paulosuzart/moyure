@@ -1,5 +1,6 @@
 (ns moyure.core
-  (:use [compojure.core]
+  (:use 
+        [compojure.core]
         [hiccup.core :only [html]]
         [hiccup.page-helpers :only [doctype link-to]]
         [ring.adapter.jetty :only [run-jetty]]
@@ -10,7 +11,8 @@
                                    build-validator
                                    non-empty-string]])
   (:require [compojure.route :as route]
-            [sandbar.forms :as forms]))
+            [sandbar.forms :as forms]
+            [moyure.db :as db]))
  
 (defn layout [con]
 
@@ -24,17 +26,11 @@
                       [:div m])
                    con]]))
 
-(def db (ref {}))
-(defn insert [d] 
-    (dosync (alter db assoc (:id d) d)))
-
-(def id (ref 0))
-(def nextval (dosync (alter id inc)))
-(defn findAll [] @db)
 
 
 (defn show-all []
-   (mapcat #([:tr [:td (:id %)]]) @db))
+   (let [all (db/find)] 
+      mapcat #([:tr [:td (:id %)]]) all))
 
 (defn home [] 
     (layout [:div 
@@ -53,7 +49,7 @@
              (forms/textfield :when {:size 10})
              (forms/textarea :subject)]
     :on-cancel "/"
-    :on-success #(do (insert (assoc % :id nextval)) (println @db)
+    :on-success #(do (db/insert-meet  % )
                      (flash-put! :user-message "Meet up saved, go tell your friends!")
                      "/")
    ;; :validator #(non-empty-string % :title :when :subject m-label)
