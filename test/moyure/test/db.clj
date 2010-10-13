@@ -6,14 +6,15 @@
     (testing "db"
         
          (testing "should return 1 in the first insertion and 2 in the second."
-            (is (= 1 (insert-meet {:title "test" :when "today"})))
-            (is (= 2 (insert-meet {:title "doc" :when "saturday"})))
+            (is (= (inc @id) (insert-meet {:title "test" :when "today"})))
+            (is (= (inc @id) (insert-meet {:title "doc" :when "saturday"})))
             
             (testing "And and then nextval should return 2."
-                (is (= 3 (nextval)))))
-         
+                (is (= (inc @id) (nextval)))))
+        
+ 
          (testing "Should return all entries (2) with unspecified id."
-            (is (= 2 (count (find))))
+            (is (not= 0 (count (find))))
          (testing "But should return one entry using id as argument."
-            (is (= 2 (:id (find 2))))))))
+            (is (not= nil (find (dec @id))))))))
 
